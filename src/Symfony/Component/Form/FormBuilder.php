@@ -38,6 +38,13 @@ class FormBuilder extends FormConfigBuilder implements \IteratorAggregate, FormB
     private $unresolvedChildren = array();
 
     /**
+     * The parent of this builder.
+     *
+     * @var FormBuilder
+     */
+    private $parent;
+
+    /**
      * Creates a new form builder.
      *
      * @param string                   $name
@@ -63,6 +70,7 @@ class FormBuilder extends FormConfigBuilder implements \IteratorAggregate, FormB
         }
 
         if ($child instanceof self) {
+            $child->setParent($this);
             $this->children[$child->getName()] = $child;
 
             // In case an unresolved child with the same name exists
@@ -230,6 +238,36 @@ class FormBuilder extends FormConfigBuilder implements \IteratorAggregate, FormB
         }
 
         return $form;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setParent(FormBuilderInterface $parent = null)
+    {
+        if ($this->locked) {
+            throw new FormException('The form builder cannot be modified anymore.');
+        }
+
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasParent()
+    {
+        return null !== $this->parent;
     }
 
     /**
